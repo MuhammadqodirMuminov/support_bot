@@ -91,6 +91,10 @@ class AdminModule {
                 );
               }
             }
+          } else {
+            await this.bot.sendMessage(chatId, ms.noQuestions, {
+              parse_mode: 'Markdown',
+            });
           }
         }
       } catch (error: any) {
@@ -160,10 +164,10 @@ class AdminModule {
       }
 
       const newAnswer = await answerService.create({
+        chat_id: chatId,
         answer: answerService.answer.text,
         file: newFile,
       });
-
       const { data } = await questionService.update(
         answerService.answer.questionId!,
         {

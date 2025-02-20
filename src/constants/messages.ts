@@ -23,3 +23,5 @@ export const answerFile = `Javob rasmini yoki videosini yuboring! (ixtiyoriy)`;
 export const sentAnswer = `Javobingiz yuborildi✅`;
 
 export const answerCaption = (answer?: string) => `Javob:\n${answer}`;
+
+export const noQuestions = `Savollar yo'q`;
