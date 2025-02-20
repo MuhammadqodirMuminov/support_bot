@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const isAdmin = () => {
+export const isAdmin = (chatId: number) => {
   const admins: string = process.env.ADMINS!;
 
-  return admins.split(',').includes(process.env.BOT_ID!);
+  return admins.split(',').includes(chatId.toString());
 };

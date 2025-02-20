@@ -15,4 +15,12 @@ export interface IQuestionData {
   phone?: string;
   file?: string;
   fileType?: FileTypes;
+  answer?: string;
+}
+
+export interface IAnswerData {
+  text?: string;
+  file?: string;
+  fileType?: FileTypes;
+  questionId?: string;
 }

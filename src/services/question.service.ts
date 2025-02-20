@@ -33,10 +33,31 @@ class QuestionService {
     }
   }
 
+  async update(
+    id: string,
+    question: Partial<IQuestion>,
+  ): Promise<IResponse<IQuestion>> {
+    try {
+      const updateQuestion = await this.questionModel
+        .findByIdAndUpdate(id, question, { new: true })
+        .populate('file');
+
+      if (!updateQuestion) {
+        return { message: 'Question not found' };
+      }
+
+      return { data: updateQuestion };
+    } catch (error) {
+      return { message: 'Error update question' };
+    }
+  }
+
   async getAllQuestions(
     filterQuery: FilterQuery<IQuestion>,
   ): Promise<IQuestion[]> {
-    const questions = await this.questionModel.find(filterQuery);
+    const questions = await this.questionModel
+      .find(filterQuery)
+      .populate('file');
     return questions;
   }
 }

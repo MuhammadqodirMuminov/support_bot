@@ -2,7 +2,6 @@ import { SendMessageOptions } from 'node-telegram-bot-api';
 import { ms } from '../constants';
 
 export const adminMenu = {
-  parse_mode: 'Markdown',
   reply_markup: {
     keyboard: [[{ text: 'Savolar' }]],
     resize_keyboard: true,
@@ -36,3 +35,16 @@ export const sendPhone: SendMessageOptions = {
     one_time_keyboard: true,
   },
 };
+
+export const listQuestion = (
+  id: string,
+): SendMessageOptions['reply_markup'] => ({
+  inline_keyboard: [
+    [
+      {
+        text: 'Javob berish✅',
+        callback_data: `answer-${id}`,
+      },
+    ],
+  ],
+});

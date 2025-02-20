@@ -5,6 +5,7 @@ import { mp } from '../utils';
 import questionService from '../services/question.service';
 import fileService from '../services/file.service';
 import { FileTypes } from '../types';
+import { IFile } from '../models/file.schema';
 
 class StartModule {
   private bot: TelegramBot;
@@ -31,7 +32,6 @@ class StartModule {
         const text = response.text?.trim();
         if (text?.length) {
           questionService.question = { text };
-          console.log(text);
           await this.bot
             .sendMessage(chatId, ms.questionFile, mp.next)
             .then(() => this.sendFile());
@@ -41,22 +41,21 @@ class StartModule {
   }
 
   sendFile() {
-    this.bot.on('message', async (msg) => {
+    this.bot.once('message', async (msg) => {
       const chatId = msg.chat.id;
       const photo = msg.photo?.[0].file_id;
       const file = msg.document?.file_id;
       const video = msg.video?.file_id;
 
       if (file || photo || video) {
-        console.log(file, photo, video);
         if (file) {
-          await this.bot.sendDocument(chatId, file);
+          // await this.bot.sendDocument(chatId, file);
           questionService.question = { file, fileType: FileTypes.DOCUMENT };
         } else if (photo) {
-          await this.bot.sendPhoto(chatId, photo);
+          // await this.bot.sendPhoto(chatId, photo);
           questionService.question = { file: photo, fileType: FileTypes.IMAGE };
         } else if (video) {
-          await this.bot.sendVideo(chatId, video);
+          // await this.bot.sendVideo(chatId, video);
           questionService.question = { file: video, fileType: FileTypes.VIDEO };
         }
       }
@@ -84,7 +83,7 @@ class StartModule {
         chat_id: chatId,
         question: questionService.question.text,
         phone: questionService.question.phone,
-        image: file?._id,
+        file,
       });
 
       await this.bot.sendMessage(
