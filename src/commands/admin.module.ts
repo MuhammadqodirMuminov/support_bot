@@ -2,7 +2,6 @@ import TelegramBot from 'node-telegram-bot-api';
 import { bot } from '../config/bot.config';
 import { ADMIN_PASS } from '../config/environment.config';
 import { ms } from '../constants';
-import adminService from '../services/admin.service';
 import { extractUniqueCode, mp } from '../utils';
 
 class AdminModule {
@@ -40,10 +39,7 @@ class AdminModule {
   }
 
   async admin_options(chatId: number, username: string) {
-    return await this.bot.sendMessage(chatId, 'Admin', {
-      reply_markup: mp.adminMenu,
-      parse_mode: 'Markdown',
-    });
+    return await this.bot.sendMessage(chatId, 'Admin', mp.adminMenu);
   }
 
   init() {

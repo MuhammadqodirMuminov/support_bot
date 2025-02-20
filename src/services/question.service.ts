@@ -1,12 +1,22 @@
 import { FilterQuery, Model, Types } from 'mongoose';
-import { IResponse } from '../types';
+import { IQuestionData, IResponse } from '../types';
 import { IQuestion, questionScheme } from '../models/question.schema';
 
 class QuestionService {
   protected questionModel: Model<IQuestion>;
 
+  private _question: IQuestionData = {};
+
   constructor(questionModel: Model<IQuestion>) {
     this.questionModel = questionModel;
+  }
+
+  get question(): IQuestionData {
+    return this._question;
+  }
+
+  set question(data: Partial<IQuestionData>) {
+    this._question = { ...this._question, ...data };
   }
 
   async create(question: Partial<IQuestion>): Promise<IResponse<IQuestion>> {

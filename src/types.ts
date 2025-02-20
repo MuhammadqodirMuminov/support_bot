@@ -1,21 +1,18 @@
 export interface IResponse<T = null> {
-	message?: string;
-	data?: T;
-	success?: boolean;
+  message?: string;
+  data?: T;
+  success?: boolean;
 }
 
 export enum FileTypes {
-	IMAGE = 'IMAGE',
-	VIDEO = 'VIDEO',
-	DOCUMENT = 'DOCUMENT',
-	AUDIO = 'AUDIO',
+  IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
+  DOCUMENT = 'DOCUMENT',
 }
 
-export interface IAdsData {
-	shortName?: string;
-	text?: string;
-	file?: string;
-	mediaType?: FileTypes;
-	btnText?: string;
-	btnUrl?: string;
+export interface IQuestionData {
+  text?: string;
+  phone?: string;
+  file?: string;
+  fileType?: FileTypes;
 }

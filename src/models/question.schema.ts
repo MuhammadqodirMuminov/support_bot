@@ -1,4 +1,4 @@
-import mongoose, { model, Schema } from 'mongoose';
+import mongoose, { model, Schema, Types } from 'mongoose';
 import { fileSchema } from './file.schema';
 
 export interface IQuestion {
@@ -6,7 +6,7 @@ export interface IQuestion {
   chat_id: number;
   phone: string;
   question: string;
-  image: string;
+  image: Types.ObjectId;
 }
 
 export const QuestionDocument = new Schema<IQuestion>({
@@ -14,7 +14,11 @@ export const QuestionDocument = new Schema<IQuestion>({
   chat_id: { type: Number, required: true },
   phone: { type: String, required: true },
   question: { type: String, required: true },
-  image: { type: String, required: false, ref: fileSchema.name },
+  image: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: false,
+    ref: fileSchema.name,
+  },
 });
 
 export const questionScheme = model<IQuestion>('questions', QuestionDocument);
