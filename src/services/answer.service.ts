@@ -5,6 +5,7 @@ import { answerScheme, IAnswer } from '../models/answer.scheme';
 class AnswerService {
   protected answerModal: Model<IAnswer>;
 
+  private _answerSessions: Map<number, IAnswerData> = new Map();
   private _answer: IAnswerData = {};
 
   constructor(answerModal: Model<IAnswer>) {
@@ -17,6 +18,14 @@ class AnswerService {
 
   set answer(data: Partial<IAnswerData>) {
     this._answer = { ...this._answer, ...data };
+  }
+
+  get answerSession(): Map<number, IAnswerData> {
+    return this._answerSessions;
+  }
+
+  set answerSession(data: Map<number, IAnswerData>) {
+    this._answerSessions = { ...this._answerSessions, ...data };
   }
 
   async create(answer: Partial<IAnswer>): Promise<IResponse<IAnswer>> {

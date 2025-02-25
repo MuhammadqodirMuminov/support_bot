@@ -120,7 +120,9 @@ class AdminModule {
 
         this.bot.once('message', async (msg) => {
           const text = msg.text;
-          answerService.answer = { text, questionId };
+          // answerService.answer = { text, questionId };
+
+          answerService.answerSession.set(chatId!, { text, questionId });
 
           await this.bot
             .sendMessage(chatId!, ms.answerFile, {
@@ -137,6 +139,10 @@ class AdminModule {
   sendFile() {
     this.bot.once('message', async (msg) => {
       const chatId = msg.chat.id;
+
+      const session = answerService.answerSession.get(chatId!);
+      if (!session) return;
+
       const photo = msg.photo?.[0].file_id;
       const file = msg.document?.file_id;
       const video = msg.video?.file_id;
@@ -229,7 +235,8 @@ class AdminModule {
       }
 
       await this.bot.sendMessage(chatId, ms.sentAnswer, mp.adminMenu);
-      answerService.answer = {};
+      // answerService.answer = {};
+      answerService.answerSession.delete(chatId);
     });
   }
 
