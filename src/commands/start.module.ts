@@ -47,17 +47,15 @@ class StartModule {
       const file = msg.document?.file_id;
       const video = msg.video?.file_id;
 
-      if (file || photo || video) {
-        if (file) {
-          // await this.bot.sendDocument(chatId, file);
-          questionService.question = { file, fileType: FileTypes.DOCUMENT };
-        } else if (photo) {
-          // await this.bot.sendPhoto(chatId, photo);
-          questionService.question = { file: photo, fileType: FileTypes.IMAGE };
-        } else if (video) {
-          // await this.bot.sendVideo(chatId, video);
-          questionService.question = { file: video, fileType: FileTypes.VIDEO };
-        }
+      if (file) {
+        // await this.bot.sendDocument(chatId, file);
+        questionService.question = { file, fileType: FileTypes.DOCUMENT };
+      } else if (photo) {
+        // await this.bot.sendPhoto(chatId, photo);
+        questionService.question = { file: photo, fileType: FileTypes.IMAGE };
+      } else if (video) {
+        // await this.bot.sendVideo(chatId, video);
+        questionService.question = { file: video, fileType: FileTypes.VIDEO };
       }
 
       await this.bot.sendMessage(chatId, ms.questionPhone, mp.sendPhone);

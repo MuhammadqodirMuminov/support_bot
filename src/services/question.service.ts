@@ -1,11 +1,14 @@
 import { FilterQuery, Model, Types } from 'mongoose';
-import { IQuestionData, IResponse } from '../types';
+import { IPagination, IQuestionData, IResponse } from '../types';
 import { IQuestion, questionScheme } from '../models/question.schema';
 
 class QuestionService {
   protected questionModel: Model<IQuestion>;
 
   private _question: IQuestionData = {};
+  private _pagination: Map<number, IPagination> = new Map([
+    [1, { page: 1, limit: 5, totalDocs: 5 }],
+  ]);
 
   constructor(questionModel: Model<IQuestion>) {
     this.questionModel = questionModel;
@@ -17,6 +20,14 @@ class QuestionService {
 
   set question(data: Partial<IQuestionData>) {
     this._question = { ...this._question, ...data };
+  }
+
+  get pagination(): Map<number, IPagination> {
+    return this._pagination;
+  }
+
+  set pagination(data: Partial<IPagination>) {
+    this._pagination = { ...this._pagination, ...data };
   }
 
   async create(question: Partial<IQuestion>): Promise<IResponse<IQuestion>> {
@@ -52,12 +63,25 @@ class QuestionService {
     }
   }
 
+  async countQuestions(filterQuery: FilterQuery<IQuestion>): Promise<number> {
+    return this.questionModel.countDocuments(filterQuery).exec();
+  }
+
   async getAllQuestions(
     filterQuery: FilterQuery<IQuestion>,
+    chatId?: number,
   ): Promise<IQuestion[]> {
+    const pagination = this._pagination.get(chatId || 1);
+    const page = pagination?.page || 1;
+    const limit = pagination?.limit || 10;
+    const skip = (page - 1) * limit;
+
     const questions = await this.questionModel
       .find(filterQuery)
-      .populate('file');
+      .skip(skip)
+      .limit(limit)
+      .populate('file')
+      .exec();
     return questions;
   }
 }

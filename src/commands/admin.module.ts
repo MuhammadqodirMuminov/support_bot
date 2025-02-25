@@ -43,67 +43,133 @@ class AdminModule {
   questions() {
     this.bot.onText(new RegExp('Savolar'), async (msg) => {
       const chatId = msg.chat.id;
+      const page = 1;
+      const limit = 5;
+
       try {
         const success = isAdmin(chatId);
 
         if (success) {
-          const questions = await questionService.getAllQuestions({
-            answer: null,
-          });
+          // Har bir yangi so'rovda paginationni qayta o'rnatish
+          questionService.pagination.set(chatId, { page, limit, totalDocs: 0 });
 
-          if (questions.length) {
-            for (const question of questions) {
-              if (
-                question?.file?.fileType === FileTypes.IMAGE &&
-                question?.file?.fileId
-              ) {
-                await this.bot.sendPhoto(chatId, question?.file?.fileId, {
-                  caption: ms.quizCaption(question.question, question.phone),
-                  reply_markup: mp.listQuestion(question._id.toString()),
-                  parse_mode: 'Markdown',
-                });
-              } else if (
-                question?.file?.fileType === FileTypes.DOCUMENT &&
-                question?.file?.fileId
-              ) {
-                await this.bot.sendDocument(chatId, question?.file?.fileId, {
-                  caption: ms.quizCaption(question.question, question.phone),
-                  reply_markup: mp.listQuestion(question._id.toString()),
-                  parse_mode: 'Markdown',
-                });
-              } else if (
-                question?.file?.fileType === FileTypes.VIDEO &&
-                question?.file?.fileId
-              ) {
-                await this.bot.sendVideo(chatId, question?.file?.fileId, {
-                  caption: ms.quizCaption(question.question, question.phone),
-                  reply_markup: mp.listQuestion(question._id.toString()),
-                  parse_mode: 'Markdown',
-                });
-              } else {
-                await this.bot.sendMessage(
-                  chatId,
-                  ms.quizCaption(question.question, question.phone),
-                  {
-                    reply_markup: mp.listQuestion(question._id.toString()),
-                    parse_mode: 'Markdown',
-                  },
-                );
-              }
-            }
-          } else {
-            await this.bot.sendMessage(chatId, ms.noQuestions, {
-              parse_mode: 'Markdown',
-            });
-          }
+          await this.sendQuestionsPage(chatId);
         }
       } catch (error: any) {
         console.log(error);
-
         this.bot.sendMessage(chatId, `Error: ${error?.message}`, {
           parse_mode: 'Markdown',
         });
       }
+    });
+
+    // Sahifa almashish uchun callback handler
+    this.bot.on('callback_query', async (query) => {
+      const chatId = query.message?.chat.id;
+      const messageId = query.message?.message_id;
+      const data = query.data?.split('-');
+
+      if (data?.[0] === 'page') {
+        const requestedPage = parseInt(data[1]);
+
+        const pagination = questionService.pagination.get(chatId || 1);
+        if (pagination) {
+          questionService.pagination.set(chatId!, {
+            ...pagination,
+            page: requestedPage,
+          });
+
+          await this.sendQuestionsPage(chatId!, messageId);
+        }
+      }
+    });
+  }
+
+  async sendQuestionsPage(chatId: number, messageId?: number) {
+    const pagination = questionService.pagination.get(chatId);
+    if (!pagination) return;
+
+    const { page, limit } = pagination;
+
+    const totalQuestions = await questionService.countQuestions({
+      answer: null,
+    });
+    questionService.pagination.set(chatId, {
+      ...pagination,
+      totalDocs: totalQuestions,
+    });
+
+    const questions = await questionService.getAllQuestions(
+      { answer: null },
+      chatId,
+    );
+
+    if (!questions.length) {
+      await this.bot.sendMessage(chatId, ms.noQuestions, {
+        parse_mode: 'Markdown',
+      });
+      return;
+    }
+
+    for (const question of questions) {
+      if (question?.file?.fileId && question?.file?.fileType) {
+        const caption = ms.quizCaption(question.question, question.phone);
+        const markup = mp.listQuestion(question._id.toString());
+
+        try {
+          if (question.file.fileType === FileTypes.IMAGE) {
+            await this.bot.sendPhoto(chatId, question.file.fileId, {
+              caption,
+              reply_markup: markup,
+              parse_mode: 'Markdown',
+            });
+          } else if (question.file.fileType === FileTypes.DOCUMENT) {
+            await this.bot.sendDocument(chatId, question.file.fileId, {
+              caption,
+              reply_markup: markup,
+              parse_mode: 'Markdown',
+            });
+          } else if (question.file.fileType === FileTypes.VIDEO) {
+            await this.bot.sendVideo(chatId, question.file.fileId, {
+              caption,
+              reply_markup: markup,
+              parse_mode: 'Markdown',
+            });
+          }
+        } catch (error) {
+          console.log('File sending error:', error);
+          await this.bot.sendMessage(chatId, `${caption}`);
+        }
+      } else {
+        await this.bot.sendMessage(
+          chatId,
+          ms.quizCaption(question.question, question.phone),
+          {
+            parse_mode: 'Markdown',
+          },
+        );
+      }
+    }
+
+    const totalPages = Math.ceil(totalQuestions / limit);
+    const paginationMarkup = {
+      inline_keyboard: [
+        [
+          {
+            text: '⏪ Oldingi',
+            callback_data: `page-${Math.max(1, page - 1)}`,
+          },
+          { text: `Sahifa ${page}/${totalPages}`, callback_data: 'none' },
+          {
+            text: '⏩ Keyingi',
+            callback_data: `page-${Math.min(totalPages, page + 1)}`,
+          },
+        ],
+      ],
+    };
+
+    await this.bot.sendMessage(chatId, 'Sahifalar:', {
+      reply_markup: paginationMarkup,
     });
   }
 

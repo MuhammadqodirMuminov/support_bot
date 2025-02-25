@@ -24,3 +24,9 @@ export interface IAnswerData {
   fileType?: FileTypes;
   questionId?: string;
 }
+
+export interface IPagination {
+  page: number;
+  limit: number;
+  totalDocs: number;
+}
