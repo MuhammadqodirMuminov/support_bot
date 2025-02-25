@@ -112,10 +112,10 @@ class AdminModule {
     }
 
     for (const question of questions) {
-      if (question?.file?.fileId && question?.file?.fileType) {
-        const caption = ms.quizCaption(question.question, question.phone);
-        const markup = mp.listQuestion(question._id.toString());
+      const caption = ms.quizCaption(question.question, question.phone);
+      const markup = mp.listQuestion(question._id.toString());
 
+      if (question?.file?.fileId && question?.file?.fileType) {
         try {
           if (question.file.fileType === FileTypes.IMAGE) {
             await this.bot.sendPhoto(chatId, question.file.fileId, {
@@ -144,13 +144,10 @@ class AdminModule {
           });
         }
       } else {
-        await this.bot.sendMessage(
-          chatId,
-          ms.quizCaption(question.question, question.phone),
-          {
-            parse_mode: 'Markdown',
-          },
-        );
+        await this.bot.sendMessage(chatId, caption, {
+          reply_markup: markup,
+          parse_mode: 'Markdown',
+        });
       }
     }
 
