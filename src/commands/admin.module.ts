@@ -172,12 +172,9 @@ class AdminModule {
         file: newFile,
       });
 
-      const { data } = await questionService.update(
-        answerService.answer.questionId!,
-        {
-          answer: newAnswer.data,
-        },
-      );
+      const { data } = await questionService.update(session.questionId!, {
+        answer: newAnswer.data,
+      });
 
       if (data?.file?.fileType === FileTypes.VIDEO && data?.file?.fileId) {
         await this.bot.sendVideo(data?.chat_id!, data?.file?.fileId, {
