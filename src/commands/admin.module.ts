@@ -138,7 +138,10 @@ class AdminModule {
           }
         } catch (error) {
           console.log('File sending error:', error);
-          await this.bot.sendMessage(chatId, `${caption}`);
+          await this.bot.sendMessage(chatId, `${caption}`, {
+            reply_markup: markup,
+            parse_mode: 'Markdown',
+          });
         }
       } else {
         await this.bot.sendMessage(
