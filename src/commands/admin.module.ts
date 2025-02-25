@@ -147,33 +147,31 @@ class AdminModule {
       const file = msg.document?.file_id;
       const video = msg.video?.file_id;
 
-      if (file || photo || video) {
-        if (file) {
-          // await this.bot.sendDocument(chatId, file);
-          answerService.answer = { file, fileType: FileTypes.DOCUMENT };
-        } else if (photo) {
-          // await this.bot.sendPhoto(chatId, photo);
-          answerService.answer = { file: photo, fileType: FileTypes.IMAGE };
-        } else if (video) {
-          // await this.bot.sendVideo(chatId, video);
-          answerService.answer = { file: video, fileType: FileTypes.VIDEO };
-        }
+      let fileData;
+
+      if (file) {
+        fileData = { file, fileType: FileTypes.DOCUMENT };
+      } else if (photo) {
+        fileData = { file: photo, fileType: FileTypes.IMAGE };
+      } else if (video) {
+        fileData = { file: video, fileType: FileTypes.VIDEO };
       }
 
       let newFile: IFile | undefined;
 
-      if (answerService.answer.file) {
+      if (fileData) {
         newFile = await fileService.createFile({
-          fileId: answerService.answer.file!,
-          fileType: questionService.question.fileType,
+          fileId: fileData.file!,
+          fileType: fileData.fileType,
         });
       }
 
       const newAnswer = await answerService.create({
         chat_id: chatId,
-        answer: answerService.answer.text,
+        answer: session.text,
         file: newFile,
       });
+
       const { data } = await questionService.update(
         answerService.answer.questionId!,
         {
