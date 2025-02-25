@@ -209,23 +209,23 @@ class AdminModule {
 
       if (newFile?.fileType === FileTypes.VIDEO && newFile?.fileId) {
         await this.bot.sendVideo(chatId, newFile?.fileId, {
-          caption: ms.answerCaption(answerService.answer.text),
+          caption: ms.answerCaption(session.text),
           parse_mode: 'Markdown',
         });
       } else if (newFile?.fileType === FileTypes.DOCUMENT && newFile?.fileId) {
         await this.bot.sendDocument(chatId, newFile?.fileId, {
-          caption: ms.answerCaption(answerService.answer.text),
+          caption: ms.answerCaption(session.text),
           parse_mode: 'Markdown',
         });
       } else if (newFile?.fileType === FileTypes.IMAGE && newFile?.fileId) {
         await this.bot.sendPhoto(chatId, newFile?.fileId, {
-          caption: ms.answerCaption(answerService.answer.text),
+          caption: ms.answerCaption(session.text),
           parse_mode: 'Markdown',
         });
       } else {
         await this.bot.sendMessage(
           data?.chat_id!,
-          ms.answerCaption(answerService.answer.text),
+          ms.answerCaption(session.text),
         );
       }
 
