@@ -5,7 +5,6 @@ import { mp } from '../utils';
 import questionService from '../services/question.service';
 import fileService from '../services/file.service';
 import { FileTypes } from '../types';
-import { IFile } from '../models/file.schema';
 
 class StartModule {
   private bot: TelegramBot;
@@ -23,6 +22,7 @@ class StartModule {
 
   sendQuestion() {
     this.bot.onText(new RegExp(ms.sendQuizBtnText), async (msg) => {
+      questionService.question = {};
       const chatId = msg.chat.id;
       await this.bot.sendMessage(chatId, ms.questionText);
 
